@@ -26,29 +26,53 @@
         
         <div class="mb-4">
           <label for="nome" class="block text-sm font-semibold mb-1">Nome</label>
-          <input type="text" id="nome" placeholder="Digite seu nome"
-            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none focus:border-yellow-400" />
+          <input 
+            type="text" 
+            id="nome" 
+            v-model="nome"
+            placeholder="Digite seu nome"
+            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none focus:border-yellow-400" 
+          />
         </div>
 
         <div class="mb-4">
           <label for="email" class="block text-sm font-semibold mb-1">Email</label>
-          <input type="email" id="email" placeholder="Digite seu email"
-            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none focus:border-yellow-400" />
+          <input 
+            type="email" 
+            id="email" 
+            v-model="email"
+            placeholder="Digite seu email"
+            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none focus:border-yellow-400" 
+          />
         </div>
 
         <div class="mb-6">
           <label for="mensagem" class="block text-sm font-semibold mb-1">Mensagem</label>
-          <textarea id="mensagem" placeholder="Digite sua mensagem"
-            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none min-h-[180px] resize-none focus:border-yellow-400"></textarea>
+          <textarea 
+            id="mensagem" 
+            v-model="mensagem"
+            placeholder="Digite sua mensagem"
+            class="w-full px-4 py-3 border border-zinc-600 rounded-lg bg-[#1B2533] outline-none min-h-[180px] resize-none focus:border-yellow-400">
+          </textarea>
         </div>
 
-        <button class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 font-bold rounded-3xl text-zinc-900 transition-all">
+        <button 
+          class="w-full py-3 bg-yellow-500 hover:bg-yellow-600 font-bold rounded-3xl text-zinc-900 transition-all"
+          @click="enviarMensagem"
+        >
           Enviar Mensagem
         </button>
+
+        <!-- EXIBIR STATUS -->
+        <p v-if="status" class="text-center mt-4 font-semibold" :class="statusColor">
+          {{ status }}
+        </p>
+
       </div>
 
       <!-- MAPA + CONTATO -->
       <div class="space-y-6 v-scroll-animate">
+        
         <!-- MAPA -->
         <div class="rounded-3xl overflow-hidden border border-yellow-500/40">
         <iframe 
@@ -91,24 +115,65 @@
   </section>
 </template>
 
+
 <script setup>
 import Card from '../components/Cards.vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
+// CAMPOS DO FORMULÁRIO
+const nome = ref("")
+const email = ref("")
+const mensagem = ref("")
+const status = ref("")
+const statusColor = ref("")
+
+// FUNÇÃO PARA ENVIAR MENSAGEM
+const enviarMensagem = async () => {
+  if (!nome.value || !email.value || !mensagem.value) {
+    status.value = "⚠️ Preencha todos os campos."
+    statusColor.value = "text-red-400"
+    return
+  }
+
+  try {
+    status.value = "Enviando..."
+    statusColor.value = "text-yellow-400"
+
+    const response = await axios.post("http://localhost:3000/api/contact", {
+      nome: nome.value,
+      email: email.value,
+      mensagem: mensagem.value
+    })
+
+    status.value = "✔️ Mensagem enviada com sucesso!"
+    statusColor.value = "text-green-400"
+
+    nome.value = ""
+    email.value = ""
+    mensagem.value = ""
+
+  } catch (err) {
+    status.value = "❌ Erro ao enviar mensagem."
+    statusColor.value = "text-red-400"
+  }
+}
+
+
+// CARDS
 const cards = [
   { title: 'Sede Principal', icon: 'fa-solid fa-building', description: 'Visite-nos para uma consulta presencial.' },
   { title: 'Atendimento Telefônico', icon: 'fa-solid fa-phone', description: 'Nossa equipe está pronta para ajudar.' },
   { title: 'Suporte Online', icon: 'fa-solid fa-comments', description: 'Conecte-se conosco digitalmente.' }
 ]
 
-// Animação suave ao rolar
+// ANIMAÇÃO
 onMounted(() => {
   const elements = document.querySelectorAll('.v-scroll-animate')
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, index) => {
       if (entry.isIntersecting) {
-        // Pequeno delay progressivo para elementos próximos
         entry.target.style.transitionDelay = `${index * 100}ms`
         entry.target.classList.add('animate-fadeInUp')
       }
@@ -118,6 +183,7 @@ onMounted(() => {
   elements.forEach(el => observer.observe(el))
 })
 </script>
+
 
 <style scoped>
 .transition-transform {
