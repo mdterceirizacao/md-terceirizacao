@@ -138,7 +138,7 @@ const enviarCurriculo = async () => {
     formData.append('telefone', telefone.value)
     formData.append('curriculo', arquivo.value)
 
-    await axios.post('http://localhost:3000/api/trabalheconosco', formData, {
+    await axios.post('https://md-terceirizacao-api-1.onrender.com/api/trabalheconosco', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
 

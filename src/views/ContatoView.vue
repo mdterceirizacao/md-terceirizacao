@@ -141,7 +141,7 @@ const enviarMensagem = async () => {
     status.value = "Enviando..."
     statusColor.value = "text-yellow-400"
 
-    const response = await axios.post("http://localhost:3000/api/contact", {
+    const response = await axios.post("https://md-terceirizacao-api-1.onrender.com/api/contact", {
       nome: nome.value,
       email: email.value,
       mensagem: mensagem.value
